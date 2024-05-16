@@ -2,7 +2,6 @@ package example.bluetooth;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.collection.ArraySet;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
@@ -18,14 +17,12 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 public class BTReadAndWrite extends AppCompatActivity {
@@ -61,8 +58,8 @@ public class BTReadAndWrite extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_btread_andwrite);
         // 根据ID获取listview和editText
-        listView = (ListView) findViewById(R.id.listView);
-        editText = (EditText) findViewById(R.id.editTextTextPersonName);
+        listView = findViewById(R.id.listView);
+        editText = findViewById(R.id.editTextPersonName1); // 确保引用正确的 EditText
         // 实例化ArrayAdapter
         adapter1 = new ArrayAdapter(this, android.R.layout.simple_expandable_list_item_1, msglist);
         // 设置listview
