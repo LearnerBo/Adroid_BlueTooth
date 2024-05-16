@@ -125,8 +125,9 @@ public class MainActivity extends AppCompatActivity {
                 String con = content.toString();
                 String[] conArray = con.split("\n");
                 String rightStr = conArray[1].substring(5, conArray[1].length());
+                // 使用btController替代mController
                 BluetoothDevice device = btController.find_device(rightStr);
-                if (device.getBondState() == 10) {
+                if (device.getBondState() == BluetoothDevice.BOND_NONE) {
                     btController.cancelSearch();
                     String s = "设备名：" + device.getName() + "\n" + "设备地址：" + device.getAddress() + "\n" + "连接状态：未配对"  + "\n";
                     deviceName.remove(s);
@@ -136,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
                     adapter1.notifyDataSetChanged();
                     showToast("配对：" + device.getName());
                 }
-                else{
+                else if (device.getBondState() == BluetoothDevice.BOND_BONDED){
                     btController.cancelSearch();
                     String s2 = "设备名：" + device.getName() + "\n" + "设备地址：" + device.getAddress() + "\n" + "连接状态：已配对" + "\n";
                     if(deviceName.contains(s2)) {
@@ -150,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
 
         // 通过id获取“是否支持蓝牙”按钮
         Button button_1 = (Button) findViewById(R.id.button3);

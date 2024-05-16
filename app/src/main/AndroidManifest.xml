@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    package="example.bluetooth">
-
-    <!-- 先前的蓝牙权限需求-->
+    <!-- 先前的蓝牙权限需求 -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <!-- 安卓12新增的蓝牙权限-->
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" /> <!-- 安卓12新增的蓝牙权限 -->
     <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
-    <!-- 定位权限， 蓝牙搜索需要-->
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" /> <!-- 定位权限， 蓝牙搜索需要 -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
@@ -20,6 +16,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.BlueTooth">
+        <activity
+            android:name=".BTReadAndWrite"
+            android:exported="true" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -32,3 +31,4 @@
     </application>
 
 </manifest>
+
