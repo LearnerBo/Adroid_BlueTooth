@@ -71,11 +71,11 @@
         android:background="#00BCD4"
         android:gravity="center"
         android:text="发送数据"
-        android:textSize="24sp"
+        android:textSize="18sp"
         app:layout_constraintTop_toBottomOf="@+id/listView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:padding="8dp"
+        android:padding="5dp"
         android:layout_marginBottom="8dp" />
 
     <TextView
@@ -85,11 +85,11 @@
         android:background="#00BCD4"
         android:gravity="center"
         android:text="设置最小频率"
-        android:textSize="24sp"
+        android:textSize="18sp"
         app:layout_constraintTop_toBottomOf="@+id/textViewSendData"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/textViewMaxFrequency"
-        android:padding="8dp" />
+        android:padding="5dp" />
 
     <TextView
         android:id="@+id/textViewMaxFrequency"
@@ -98,11 +98,11 @@
         android:background="#00BCD4"
         android:gravity="center"
         android:text="设置最大频率"
-        android:textSize="24sp"
+        android:textSize="18sp"
         app:layout_constraintTop_toBottomOf="@+id/textViewSendData"
         app:layout_constraintStart_toEndOf="@+id/textViewMinFrequency"
         app:layout_constraintEnd_toEndOf="parent"
-        android:padding="8dp" />
+        android:padding="5dp" />
 
     <TextView
         android:id="@+id/textViewSweepInterval"
@@ -111,11 +111,11 @@
         android:background="#00BCD4"
         android:gravity="center"
         android:text="设置扫频间隔"
-        android:textSize="24sp"
+        android:textSize="18sp"
         app:layout_constraintTop_toBottomOf="@+id/textViewMinFrequency"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/textViewRadarDistance"
-        android:padding="8dp" />
+        android:padding="5dp" />
 
     <TextView
         android:id="@+id/textViewRadarDistance"
@@ -124,11 +124,11 @@
         android:background="#00BCD4"
         android:gravity="center"
         android:text="设置雷达监测距离"
-        android:textSize="23sp"
+        android:textSize="18sp"
         app:layout_constraintTop_toBottomOf="@+id/textViewMaxFrequency"
         app:layout_constraintStart_toEndOf="@+id/textViewSweepInterval"
         app:layout_constraintEnd_toEndOf="parent"
-        android:padding="8dp" />
+        android:padding="5dp" />
 
     <EditText
         android:id="@+id/editTextPersonName1"

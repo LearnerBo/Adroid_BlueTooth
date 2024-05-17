@@ -29,11 +29,11 @@ public class MainActivity extends AppCompatActivity {
     private Toast mToast;
     public ArrayList<String> requestList = new ArrayList<>();
     private IntentFilter foundFilter;
-    public ArrayAdapter adapter1;
+    public ArrayAdapter<String> adapter1;
     public ArrayList<String> arrayList = new ArrayList<>();
     public ArrayList<String> deviceName = new ArrayList<>();
 
-    private BroadcastReceiver receiver = new BroadcastReceiver() {
+    private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
                     showToast("STATE_TURNING_ON");
                     break;
                 default:
-                    showToast("UnKnow STATE");
+                    showToast("Unknown STATE");
                     unregisterReceiver(this);
                     break;
             }
@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
         foundFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
 
         ListView listView = findViewById(R.id.listview1);
-        adapter1 = new ArrayAdapter(this, android.R.layout.simple_expandable_list_item_1, deviceName);
+        adapter1 = new ArrayAdapter<>(this, R.layout.list_item, R.id.list_item_text, deviceName);
         listView.setAdapter(adapter1);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -121,6 +121,8 @@ public class MainActivity extends AppCompatActivity {
                 if (device.getBondState() == BluetoothDevice.BOND_NONE) {
                     btController.cancelSearch();
                     device.createBond();
+                } else {
+                    startBTReadAndWriteActivity(device);
                 }
             }
         });

@@ -24,64 +24,48 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.Arrays;
 
 public class BTReadAndWrite extends AppCompatActivity {
-    // 需求列表
     private ArrayList<String> requestList = new ArrayList<>();
-    // 常量
-    private int REQ_PERMISSION_CODE = 1;
-    // 蓝牙服务
+    private static final int REQ_PERMISSION_CODE = 1;
     private BluetoothSocket bluetoothSocket;
-    // 延时创建Toast类，
     private Toast mToast;
-    // 实例化BTclient
-    private BTclient bTclient = new BTclient();
-    // 实例化蓝牙适配器类
+    private BTclient bTclient;
     public BlueToothController mController = new BlueToothController();
-    // 存放接收数据
-    public Byte[] mmbuffer;
-    // 消息列表
     public ArrayList<String> msglist = new ArrayList<>();
-    // listview控件
     public ListView listView;
-    // ArrayAdapter
-    public ArrayAdapter adapter1;
-    // 读取数据线程
-    public readThread readthread = new readThread();
-    // 文字输入框
+    public ArrayAdapter<String> adapter1;
     public EditText editText;
-    // 活动间消息传递
     public Handler mHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_btread_andwrite);
-        // 根据ID获取listview和editText
+
         listView = findViewById(R.id.listView);
-        editText = findViewById(R.id.editTextPersonName1); // 确保引用正确的 EditText
-        // 实例化ArrayAdapter
-        adapter1 = new ArrayAdapter(this, android.R.layout.simple_expandable_list_item_1, msglist);
-        // 设置listview
+        editText = findViewById(R.id.editTextPersonName1);
+
+        adapter1 = new ArrayAdapter<>(this, android.R.layout.simple_expandable_list_item_1, msglist);
         listView.setAdapter(adapter1);
-        // 获取intent
+
         Intent intent = getIntent();
-        // 获取intent传来的数据
         Bundle bundle = intent.getExtras();
-        // 连接服务
-        bTclient.connectDevice(mController.find_device(bundle.getString("deviceAddr")));
-        // 服务线程开始
+        String deviceAddr = bundle.getString("deviceAddr");
+
+        BluetoothDevice device = mController.find_device(deviceAddr);
+        bTclient = new BTclient(device);
         bTclient.start();
-        // 实例化Handler
-        mHandler = new Handler(){
+
+        mHandler = new Handler() {
             @Override
             public void handleMessage(@NonNull Message msg) {
                 super.handleMessage(msg);
-                switch (msg.what){
-                    case 1:
-                        String s = msg.obj.toString();
-                        msglist.add("接收数据：" + s);
-                        adapter1.notifyDataSetChanged();
+                if (msg.what == 1) {
+                    String s = msg.obj.toString();
+                    msglist.add("接收数据：" + s);
+                    adapter1.notifyDataSetChanged();
                 }
             }
         };
@@ -89,30 +73,42 @@ public class BTReadAndWrite extends AppCompatActivity {
 
     public void sead_msg(View view) {
         String s = editText.getText().toString();
-        if (!s.isEmpty()){
+        if (!s.isEmpty()) {
             sendMessageHandle(s);
             msglist.add("发送数据：" + s + "\n");
             adapter1.notifyDataSetChanged();
         }
     }
 
-    private class BTclient extends Thread{
-        private void connectDevice(BluetoothDevice device){
+    private class BTclient extends Thread {
+        private BluetoothDevice device;
+
+        BTclient(BluetoothDevice device) {
+            this.device = device;
+        }
+
+        @Override
+        public void run() {
+            connectDevice(device);
+        }
+
+        private void connectDevice(BluetoothDevice device) {
             try {
-                getPermision();
+                getPermission();
                 bluetoothSocket = device.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
                 bluetoothSocket.connect();
-                readthread.start();
                 showToast("蓝牙连接成功");
+                new ReadThread().start();
             } catch (IOException e) {
                 e.printStackTrace();
                 showToast("蓝牙连接失败");
+                closeSocket();
             }
         }
     }
 
-    public void getPermision(){
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S){
+    private void getPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             requestList.add(Manifest.permission.BLUETOOTH_SCAN);
             requestList.add(Manifest.permission.BLUETOOTH_ADVERTISE);
             requestList.add(Manifest.permission.BLUETOOTH_CONNECT);
@@ -120,45 +116,51 @@ public class BTReadAndWrite extends AppCompatActivity {
             requestList.add(Manifest.permission.ACCESS_COARSE_LOCATION);
             requestList.add(Manifest.permission.BLUETOOTH);
         }
-        if(requestList.size() != 0){
+        if (!requestList.isEmpty()) {
             ActivityCompat.requestPermissions(this, requestList.toArray(new String[0]), REQ_PERMISSION_CODE);
         }
     }
 
-    public void showToast(String text){
-        if( mToast == null){
-            mToast = Toast.makeText(this, text, Toast.LENGTH_SHORT);
-        }
-        else{
-            mToast.setText(text);
-        }
-        mToast.show();
+    private void showToast(String text) {
+        runOnUiThread(() -> {
+            if (mToast == null) {
+                mToast = Toast.makeText(this, text, Toast.LENGTH_SHORT);
+            } else {
+                mToast.setText(text);
+            }
+            mToast.show();
+        });
     }
 
-    //发送数据
-    public void sendMessageHandle(String msg)
-    {
-        getPermision();
-        if (bluetoothSocket == null)
-        {
+    private void sendMessageHandle(String msg) {
+        getPermission();
+        if (bluetoothSocket == null) {
             showToast("没有连接");
             return;
         }
         try {
             OutputStream os = bluetoothSocket.getOutputStream();
-            os.write(msg.getBytes()); //发送出去的值为：msg
+            os.write(msg.getBytes("UTF-8")); // 使用UTF-8编码发送数据
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
 
-    //读取数据
-    private class readThread extends Thread {
-        private static final String TAG = "";
+    private void closeSocket() {
+        try {
+            if (bluetoothSocket != null) {
+                bluetoothSocket.close();
+                bluetoothSocket = null;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private class ReadThread extends Thread {
+        private static final String TAG = "BluetoothReadThread";
 
         public void run() {
-            super.run();
             byte[] buffer = new byte[1024];
             int bytes;
             InputStream mmInStream = null;
@@ -166,42 +168,52 @@ public class BTReadAndWrite extends AppCompatActivity {
             try {
                 mmInStream = bluetoothSocket.getInputStream();
             } catch (IOException e1) {
-                // TODO Auto-generated catch block
                 e1.printStackTrace();
+                return;
             }
+
+            StringBuilder receivedData = new StringBuilder();
             while (true) {
                 try {
-                    // Read from the InputStream
-                    if( (bytes = mmInStream.read(buffer)) > 0 )
-                    {
-                        byte[] buf_data = new byte[bytes];
-                        for(int i=0; i<bytes; i++)
-                        {
-                            buf_data[i] = buffer[i];
-                        }
-                        String s = new String(buf_data);//接收的值inputstream 为 s
-                        Log.e(TAG, "run: " + s);
-                        Message message = Message.obtain();
-                        message.what = 1;
-                        message.obj = s;
-                        mHandler.sendMessage(message);
+                    if ((bytes = mmInStream.read(buffer)) > 0) {
+                        Log.e(TAG, "Raw bytes: " + Arrays.toString(Arrays.copyOf(buffer, bytes)));
+                        String readMessage = new String(buffer, 0, bytes, "UTF-8"); // 使用UTF-8解码接收数据
+                        receivedData.append(readMessage);
 
-                        if(s.equalsIgnoreCase("o")){ //o表示opend!
-                            showToast("open");
-                        }
-                        else if(s.equalsIgnoreCase("c")){  //c表示closed!
-                            showToast("closed");
+                        // Check for new lines in the received data
+                        int newLineIndex;
+                        while ((newLineIndex = receivedData.indexOf("\n")) != -1) {
+                            String completeMessage = receivedData.substring(0, newLineIndex).trim();
+                            receivedData.delete(0, newLineIndex + 1); // Remove the processed message
+
+                            Log.e(TAG, "run: " + completeMessage);
+                            Message message = Message.obtain();
+                            message.what = 1;
+                            message.obj = completeMessage;
+                            mHandler.sendMessage(message);
+
+                            if (completeMessage.equalsIgnoreCase("o")) {
+                                showToast("open");
+                            } else if (completeMessage.equalsIgnoreCase("c")) {
+                                showToast("closed");
+                            }
                         }
                     }
                 } catch (IOException e) {
-                    try {
-                        mmInStream.close();
-                    } catch (IOException e1) {
-                        // TODO Auto-generated catch block
-                        e1.printStackTrace();
-                    }
+                    Log.e(TAG, "Error reading from InputStream", e);
+                    closeInputStream(mmInStream);
                     break;
                 }
+            }
+        }
+
+        private void closeInputStream(InputStream inputStream) {
+            try {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
