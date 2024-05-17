@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;  // 导入 TextView 类
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -216,5 +217,12 @@ public class BTReadAndWrite extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void disconnect(View view) {
+        closeSocket();
+        showToast("蓝牙已断开");
+        TextView connectionStatus = findViewById(R.id.textViewConnectionStatus);
+        connectionStatus.setText("断开");
     }
 }
