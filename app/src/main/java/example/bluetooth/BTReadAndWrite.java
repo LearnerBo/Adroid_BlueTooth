@@ -23,7 +23,10 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.Arrays;
 
@@ -39,6 +42,7 @@ public class BTReadAndWrite extends AppCompatActivity {
     public ArrayAdapter<String> adapter1;
     public EditText editText;
     public Handler mHandler;
+    public TextView textViewConnectionStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,8 +51,9 @@ public class BTReadAndWrite extends AppCompatActivity {
 
         listView = findViewById(R.id.listView);
         editText = findViewById(R.id.editTextPersonName1);
+        textViewConnectionStatus = findViewById(R.id.textViewConnectionStatus);
 
-        adapter1 = new ArrayAdapter<>(this, android.R.layout.simple_expandable_list_item_1, msglist);
+        adapter1 = new ArrayAdapter<>(this, R.layout.received_list_item, R.id.received_item_text, msglist);
         listView.setAdapter(adapter1);
 
         Intent intent = getIntent();
@@ -65,18 +70,30 @@ public class BTReadAndWrite extends AppCompatActivity {
                 super.handleMessage(msg);
                 if (msg.what == 1) {
                     String s = msg.obj.toString();
-                    msglist.add("接收数据：" + s);
+                    String currentTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
+                    msglist.add(currentTime + ":" + s);
                     adapter1.notifyDataSetChanged();
+                } else if (msg.what == 2) {
+                    textViewConnectionStatus.setText("已连接");
+                } else if (msg.what == 3) {
+                    textViewConnectionStatus.setText("连接中");
+                } else if (msg.what == 4) {
+                    textViewConnectionStatus.setText("断开");
                 }
             }
         };
+
+        // 设置初始状态为连接中
+        textViewConnectionStatus.setText("连接中");
+        mHandler.sendEmptyMessage(3);
     }
 
     public void sead_msg(View view) {
         String s = editText.getText().toString();
         if (!s.isEmpty()) {
             sendMessageHandle(s);
-            msglist.add("发送数据：" + s + "\n");
+            String currentTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
+            msglist.add(currentTime + " 发送数据：" + s);
             adapter1.notifyDataSetChanged();
         }
     }
@@ -99,10 +116,12 @@ public class BTReadAndWrite extends AppCompatActivity {
                 bluetoothSocket = device.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
                 bluetoothSocket.connect();
                 showToast("蓝牙连接成功");
+                mHandler.sendEmptyMessage(2);  // 连接成功后发送消息更新状态
                 new ReadThread().start();
             } catch (IOException e) {
                 e.printStackTrace();
                 showToast("蓝牙连接失败");
+                mHandler.sendEmptyMessage(4);  // 连接失败或断开时发送消息更新状态
                 closeSocket();
             }
         }
@@ -152,6 +171,7 @@ public class BTReadAndWrite extends AppCompatActivity {
             if (bluetoothSocket != null) {
                 bluetoothSocket.close();
                 bluetoothSocket = null;
+                mHandler.sendEmptyMessage(4);  // 断开连接后更新状态
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -222,7 +242,5 @@ public class BTReadAndWrite extends AppCompatActivity {
     public void disconnect(View view) {
         closeSocket();
         showToast("蓝牙已断开");
-        TextView connectionStatus = findViewById(R.id.textViewConnectionStatus);
-        connectionStatus.setText("断开");
     }
 }
