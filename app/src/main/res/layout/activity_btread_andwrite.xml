@@ -21,7 +21,7 @@
         android:id="@+id/textViewConnectionStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="断开"
+        android:text="连接中"
         android:textColor="#00BCD4"
         android:textSize="24sp"
         app:layout_constraintTop_toTopOf="parent"
@@ -79,57 +79,61 @@
         android:padding="5dp"
         android:layout_marginBottom="8dp" />
 
-    <TextView
-        android:id="@+id/textViewMinFrequency"
+    <Button
+        android:id="@+id/buttonMinFrequency"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="#00BCD4"
         android:gravity="center"
         android:text="设置最小频率"
         android:textSize="18sp"
+        android:onClick="onMinFrequencyClick"
         app:layout_constraintTop_toBottomOf="@+id/textViewSendData"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/textViewMaxFrequency"
+        app:layout_constraintEnd_toStartOf="@+id/buttonMaxFrequency"
         android:padding="5dp" />
 
-    <TextView
-        android:id="@+id/textViewMaxFrequency"
+    <Button
+        android:id="@+id/buttonMaxFrequency"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="#00BCD4"
         android:gravity="center"
+        android:onClick="onMaxFrequencyClick"
+        android:padding="5dp"
         android:text="设置最大频率"
         android:textSize="18sp"
-        app:layout_constraintTop_toBottomOf="@+id/textViewSendData"
-        app:layout_constraintStart_toEndOf="@+id/textViewMinFrequency"
         app:layout_constraintEnd_toEndOf="parent"
-        android:padding="5dp" />
+        app:layout_constraintStart_toEndOf="@+id/buttonMinFrequency"
+        app:layout_constraintTop_toBottomOf="@+id/textViewSendData" />
 
-    <TextView
-        android:id="@+id/textViewSweepInterval"
+    <Button
+        android:id="@+id/buttonSweepInterval"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="#00BCD4"
         android:gravity="center"
+        android:onClick="onSweepIntervalClick"
+        android:padding="5dp"
         android:text="设置扫频间隔"
         android:textSize="18sp"
-        app:layout_constraintTop_toBottomOf="@+id/textViewMinFrequency"
+        app:layout_constraintEnd_toEndOf="@+id/buttonMinFrequency"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/textViewRadarDistance"
-        android:padding="5dp" />
+        app:layout_constraintTop_toBottomOf="@+id/buttonMinFrequency" />
 
-    <TextView
-        android:id="@+id/textViewRadarDistance"
+    <Button
+        android:id="@+id/buttonRadarDistance"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="#00BCD4"
         android:gravity="center"
+        android:onClick="onRadarDistanceClick"
+        android:padding="5dp"
         android:text="设置雷达监测距离"
         android:textSize="18sp"
-        app:layout_constraintTop_toBottomOf="@+id/textViewMaxFrequency"
-        app:layout_constraintStart_toEndOf="@+id/textViewSweepInterval"
         app:layout_constraintEnd_toEndOf="parent"
-        android:padding="5dp" />
+        app:layout_constraintStart_toEndOf="@+id/buttonMinFrequency"
+        app:layout_constraintTop_toBottomOf="@+id/buttonMaxFrequency" />
 
     <EditText
         android:id="@+id/editTextPersonName1"
@@ -137,23 +141,46 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="textPersonName"
-        app:layout_constraintTop_toBottomOf="@+id/textViewRadarDistance"
+        app:layout_constraintTop_toBottomOf="@+id/buttonRadarDistance"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:padding="8dp"
         android:layout_marginBottom="16dp" />
 
+    <Switch
+        android:id="@+id/switchHex"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="HEX"
+        app:layout_constraintTop_toBottomOf="@+id/editTextPersonName1"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp" />
+
     <Button
         android:id="@+id/buttonSend"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:onClick="sead_msg"
-        android:text="发送"
-        app:layout_constraintTop_toBottomOf="@+id/editTextPersonName1"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
         android:padding="8dp"
-        android:layout_marginBottom="16dp" />
+        android:text="发送"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/switchHex"
+        app:layout_constraintTop_toBottomOf="@+id/editTextPersonName1"
+        app:layout_constraintWidth_percent="0.35" />
+
+    <Button
+        android:id="@+id/buttonClearMessages"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:onClick="clearMessages"
+        android:text="清空"
+        app:layout_constraintTop_toBottomOf="@+id/editTextPersonName1"
+        app:layout_constraintStart_toEndOf="@+id/buttonSend"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:padding="8dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintWidth_percent="0.35" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

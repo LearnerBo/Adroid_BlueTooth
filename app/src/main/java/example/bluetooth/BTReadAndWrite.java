@@ -17,7 +17,8 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;  // 导入 TextView 类
+import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -43,6 +44,7 @@ public class BTReadAndWrite extends AppCompatActivity {
     public EditText editText;
     public Handler mHandler;
     public TextView textViewConnectionStatus;
+    public Switch switchHex;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +54,7 @@ public class BTReadAndWrite extends AppCompatActivity {
         listView = findViewById(R.id.listView);
         editText = findViewById(R.id.editTextPersonName1);
         textViewConnectionStatus = findViewById(R.id.textViewConnectionStatus);
+        switchHex = findViewById(R.id.switchHex);
 
         adapter1 = new ArrayAdapter<>(this, R.layout.received_list_item, R.id.received_item_text, msglist);
         listView.setAdapter(adapter1);
@@ -71,7 +74,7 @@ public class BTReadAndWrite extends AppCompatActivity {
                 if (msg.what == 1) {
                     String s = msg.obj.toString();
                     String currentTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
-                    msglist.add(currentTime + ":" + s);
+                    msglist.add(currentTime + ": 接收数据：" + s);
                     adapter1.notifyDataSetChanged();
                 } else if (msg.what == 2) {
                     textViewConnectionStatus.setText("已连接");
@@ -91,11 +94,29 @@ public class BTReadAndWrite extends AppCompatActivity {
     public void sead_msg(View view) {
         String s = editText.getText().toString();
         if (!s.isEmpty()) {
-            sendMessageHandle(s);
             String currentTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
-            msglist.add(currentTime + " 发送数据：" + s);
+            if (switchHex.isChecked()) {
+                sendMessageHandle(convertStringToHex(s));
+                msglist.add(currentTime + ": 发送数据：" + convertStringToHex(s) + "\n");
+            } else {
+                sendMessageHandle(s);
+                msglist.add(currentTime + ": 发送数据：" + s + "\n");
+            }
             adapter1.notifyDataSetChanged();
         }
+    }
+
+    private String convertStringToHex(String str) {
+        StringBuilder hex = new StringBuilder();
+        for (char ch : str.toCharArray()) {
+            hex.append(String.format("%02X ", (int) ch));
+        }
+        return hex.toString().trim();
+    }
+
+    public void clearMessages(View view) {
+        msglist.clear();
+        adapter1.notifyDataSetChanged();
     }
 
     private class BTclient extends Thread {
