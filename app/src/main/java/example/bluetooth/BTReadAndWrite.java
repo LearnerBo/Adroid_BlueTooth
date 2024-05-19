@@ -24,10 +24,7 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
 import java.util.UUID;
 import java.util.Arrays;
 
@@ -44,7 +41,7 @@ public class BTReadAndWrite extends AppCompatActivity {
     public EditText editText;
     public Handler mHandler;
     public TextView textViewConnectionStatus;
-    public Switch switchHex;
+    private Switch switchMinFrequency, switchMaxFrequency, switchSweepInterval, switchRadarDistance, switchHex;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,10 +51,18 @@ public class BTReadAndWrite extends AppCompatActivity {
         listView = findViewById(R.id.listView);
         editText = findViewById(R.id.editTextPersonName1);
         textViewConnectionStatus = findViewById(R.id.textViewConnectionStatus);
-        switchHex = findViewById(R.id.switchHex);
 
+        // 使用自定义的布局文件
         adapter1 = new ArrayAdapter<>(this, R.layout.received_list_item, R.id.received_item_text, msglist);
         listView.setAdapter(adapter1);
+
+        switchMinFrequency = findViewById(R.id.switchMinFrequency);
+        switchMaxFrequency = findViewById(R.id.switchMaxFrequency);
+        switchSweepInterval = findViewById(R.id.switchSweepInterval);
+        switchRadarDistance = findViewById(R.id.switchRadarDistance);
+        switchHex = findViewById(R.id.switchHex);
+
+        setupSwitchListeners();
 
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
@@ -73,8 +78,8 @@ public class BTReadAndWrite extends AppCompatActivity {
                 super.handleMessage(msg);
                 if (msg.what == 1) {
                     String s = msg.obj.toString();
-                    String currentTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
-                    msglist.add(currentTime + ": 接收数据：" + s);
+                    String currentTime = java.text.DateFormat.getDateTimeInstance().format(new java.util.Date());
+                    msglist.add(currentTime + " 接收数据：" + s);
                     adapter1.notifyDataSetChanged();
                 } else if (msg.what == 2) {
                     textViewConnectionStatus.setText("已连接");
@@ -91,27 +96,81 @@ public class BTReadAndWrite extends AppCompatActivity {
         mHandler.sendEmptyMessage(3);
     }
 
+    private void setupSwitchListeners() {
+        switchMinFrequency.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                switchMaxFrequency.setChecked(false);
+                switchSweepInterval.setChecked(false);
+                switchRadarDistance.setChecked(false);
+            }
+        });
+
+        switchMaxFrequency.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                switchMinFrequency.setChecked(false);
+                switchSweepInterval.setChecked(false);
+                switchRadarDistance.setChecked(false);
+            }
+        });
+
+        switchSweepInterval.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                switchMinFrequency.setChecked(false);
+                switchMaxFrequency.setChecked(false);
+                switchRadarDistance.setChecked(false);
+            }
+        });
+
+        switchRadarDistance.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                switchMinFrequency.setChecked(false);
+                switchMaxFrequency.setChecked(false);
+                switchSweepInterval.setChecked(false);
+            }
+        });
+    }
+
     public void sead_msg(View view) {
         String s = editText.getText().toString();
         if (!s.isEmpty()) {
-            String currentTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
             if (switchHex.isChecked()) {
-                sendMessageHandle(convertStringToHex(s));
-                msglist.add(currentTime + ": 发送数据：" + convertStringToHex(s) + "\n");
+                s = stringToHex(s);
             } else {
-                sendMessageHandle(s);
-                msglist.add(currentTime + ": 发送数据：" + s + "\n");
+                try {
+                    int decimal = Integer.parseInt(s);
+                    s = String.format("%04X", decimal);
+                } catch (NumberFormatException e) {
+                    showToast("请输入有效的数字");
+                    return;
+                }
             }
+            if (switchMinFrequency.isChecked()) {
+                s = createCommandString(0x10, s);
+            } else if (switchMaxFrequency.isChecked()) {
+                s = createCommandString(0x20, s);
+            } else if (switchSweepInterval.isChecked()) {
+                s = createCommandString(0x30, s);
+            } else if (switchRadarDistance.isChecked()) {
+                s = createCommandString(0x40, s);
+            }
+
+            sendMessageHandle(s);
+            String currentTime = java.text.DateFormat.getDateTimeInstance().format(new java.util.Date());
+            msglist.add(currentTime + " 发送数据：" + s);
             adapter1.notifyDataSetChanged();
         }
     }
 
-    private String convertStringToHex(String str) {
+    private String createCommandString(int command, String data) {
+        return String.format("AA55%02X%s0016", command, data);
+    }
+
+    private String stringToHex(String str) {
         StringBuilder hex = new StringBuilder();
         for (char ch : str.toCharArray()) {
-            hex.append(String.format("%02X ", (int) ch));
+            hex.append(String.format("%02X", (int) ch));
         }
-        return hex.toString().trim();
+        return hex.toString();
     }
 
     public void clearMessages(View view) {
@@ -181,10 +240,20 @@ public class BTReadAndWrite extends AppCompatActivity {
         }
         try {
             OutputStream os = bluetoothSocket.getOutputStream();
-            os.write(msg.getBytes("UTF-8")); // 使用UTF-8编码发送数据
+            os.write(hexStringToByteArray(msg)); // 使用16进制字符串发送数据
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private byte[] hexStringToByteArray(String s) {
+        int len = s.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+                    + Character.digit(s.charAt(i+1), 16));
+        }
+        return data;
     }
 
     private void closeSocket() {

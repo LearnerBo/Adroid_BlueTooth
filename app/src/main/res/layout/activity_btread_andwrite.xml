@@ -79,61 +79,53 @@
         android:padding="5dp"
         android:layout_marginBottom="8dp" />
 
-    <Button
-        android:id="@+id/buttonMinFrequency"
+    <Switch
+        android:id="@+id/switchMinFrequency"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="#00BCD4"
-        android:gravity="center"
         android:text="设置最小频率"
         android:textSize="18sp"
-        android:onClick="onMinFrequencyClick"
         app:layout_constraintTop_toBottomOf="@+id/textViewSendData"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/buttonMaxFrequency"
-        android:padding="5dp" />
+        app:layout_constraintEnd_toStartOf="@+id/switchMaxFrequency"
+        android:padding="5dp"
+        app:layout_constraintWidth_percent="0.5" />
 
-    <Button
-        android:id="@+id/buttonMaxFrequency"
+    <Switch
+        android:id="@+id/switchMaxFrequency"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="#00BCD4"
-        android:gravity="center"
-        android:onClick="onMaxFrequencyClick"
-        android:padding="5dp"
         android:text="设置最大频率"
         android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@+id/textViewSendData"
+        app:layout_constraintStart_toEndOf="@+id/switchMinFrequency"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/buttonMinFrequency"
-        app:layout_constraintTop_toBottomOf="@+id/textViewSendData" />
+        android:padding="5dp"
+        app:layout_constraintWidth_percent="0.5" />
 
-    <Button
-        android:id="@+id/buttonSweepInterval"
+    <Switch
+        android:id="@+id/switchSweepInterval"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="#00BCD4"
-        android:gravity="center"
-        android:onClick="onSweepIntervalClick"
-        android:padding="5dp"
         android:text="设置扫频间隔"
         android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="@+id/buttonMinFrequency"
+        app:layout_constraintTop_toBottomOf="@+id/switchMinFrequency"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonMinFrequency" />
+        app:layout_constraintEnd_toStartOf="@+id/switchRadarDistance"
+        android:padding="5dp"
+        app:layout_constraintWidth_percent="0.5" />
 
-    <Button
-        android:id="@+id/buttonRadarDistance"
+    <Switch
+        android:id="@+id/switchRadarDistance"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="#00BCD4"
-        android:gravity="center"
-        android:onClick="onRadarDistanceClick"
-        android:padding="5dp"
         android:text="设置雷达监测距离"
         android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@+id/switchMaxFrequency"
+        app:layout_constraintStart_toEndOf="@+id/switchSweepInterval"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/buttonMinFrequency"
-        app:layout_constraintTop_toBottomOf="@+id/buttonMaxFrequency" />
+        android:padding="5dp"
+        app:layout_constraintWidth_percent="0.5" />
 
     <EditText
         android:id="@+id/editTextPersonName1"
@@ -141,7 +133,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="textPersonName"
-        app:layout_constraintTop_toBottomOf="@+id/buttonRadarDistance"
+        app:layout_constraintTop_toBottomOf="@+id/switchRadarDistance"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:padding="8dp"
